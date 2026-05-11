@@ -143,17 +143,17 @@ void drawMap(int level){
                     mvprintw(y, x*2, "  ");
                     attroff(COLOR_PAIR(4));
                    break;
-                case 5: 
+                case 5: // growth item
                     attron(COLOR_PAIR(5));
                     mvprintw(y, x*2, "  ");
                     attroff(COLOR_PAIR(5));
                    break;
-                case 6: 
+                case 6: // poison item
                     attron(COLOR_PAIR(6));
                     mvprintw(y, x*2, "  ");
                     attroff(COLOR_PAIR(6));
                    break;
-                case 7: 
+                case 7: // gate
                     attron(COLOR_PAIR(7));
                     mvprintw(y, x*2, "  ");
                     attroff(COLOR_PAIR(7));
