@@ -1,5 +1,6 @@
 #include "snake.hpp"
 #include "map.hpp"
+extern int currentStage;
 
 //뱀
 std::deque<Point> snake; //뱀의 좌표 저장
@@ -11,9 +12,9 @@ void initSnake(){
     snake.push_back({10, 3}); //머리
     snake.push_back({10, 2}); //몸통
     snake.push_back({10, 1}); //몸통
-    map[10][3]=3; // 3이 머리
-    map[10][2]=4; // 4가 몸통
-    map[10][1]=4;
+    gameMap[currentStage][10][3]=3; // 3이 머리
+    gameMap[currentStage][10][2]=4; // 4가 몸통
+    gameMap[currentStage][10][1]=4;
 }
 
 //뱀 이동
@@ -28,7 +29,7 @@ void moveSnake(){
     if(dir == RIGHT) newHead.x++;
 
     //새 머리 좌표 확인
-    int cell = map[newHead.y][newHead.x];
+    int cell = gameMap[currentStage][newHead.y][newHead.x];
     if (cell==1 || cell==2 || cell==4){ //머리위치가 벽, 부술 수 없는 벽, 자기 몸이면 게임오버
         gameOver=true;
         return;
@@ -37,11 +38,16 @@ void moveSnake(){
     //꼬리 제거
     Point tail = snake.back();
     snake.pop_back();
-    map[tail.y][tail.x]=0;
+    if(gameMap[currentStage][tail.y][tail.x]!=7){
+    gameMap[currentStage][tail.y][tail.x]=0;
+    }
 
     //새 머리 추가
     snake.push_front(newHead);
-    map[head.y][head.x]=4; //기존 머리는 몸통으로
-    map[newHead.y][newHead.x]=3; //새머리
+    if(gameMap[currentStage][head.y][head.x]!=7){
+    gameMap[currentStage][head.y][head.x]=4; //기존 머리는 몸통으로
+    }
+
+    gameMap[currentStage][newHead.y][newHead.x]=3; //새머리
 
 }

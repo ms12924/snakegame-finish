@@ -8,7 +8,7 @@ extern const int STAGE_COUNT; // 전체 스테이지 개수 (4)
 
 // 스테이지별 맵 데이터를 저장하는 3차원 배열
 // map.cpp에 정의된 maps 배열을 참조
-extern int map[4][21][21];
+extern int gameMap[4][21][21];
 
 // 지정된 스테이지의 맵을 화면에 그리는 함수
 // level: 그릴 스테이지 번호 (0 ~ STAGE_COUNT-1)

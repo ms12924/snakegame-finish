@@ -2,6 +2,7 @@
 #include "snake.hpp"
 #include <cstdlib>
 #include <ctime>
+extern int currentStage;
 
 Item items[MAX_ITEMS];
 
@@ -25,12 +26,12 @@ void spawnItem(){
             do{
                 y=rand()%(MAP_SIZE-2)+1;
                 x=rand()%(MAP_SIZE-2)+1;
-            }while (map[y][x] != 0);
+            }while (gameMap[currentStage][y][x] != 0);
             items[i].y=y;
             items[i].x=x;
             items[i].type=(rand()%2==0)?5:6;
             items[i].timer=ITEM_DURATION;
-            map[y][x]=items[i].type;
+            gameMap[currentStage][y][x]=items[i].type;
             break;
         }
     }
@@ -41,7 +42,7 @@ void updateItems(){
         if(items[i].timer>0){
             items[i].timer--;
             if(items[i].timer==0){
-                map[items[i].y][items[i].x]=0;
+                gameMap[currentStage][items[i].y][items[i].x]=0;
                 spawnItem();
             }
         }
@@ -52,7 +53,7 @@ void applyItem(int type){
     if(type==5){
         Point tail=snake.back();
         snake.push_back(tail);
-        map[tail.y][tail.x]=4;
+        gameMap[currentStage][tail.y][tail.x]=4;
     }else if(type==6){
         if(snake.size()<=3){
             gameOver=true;
@@ -60,6 +61,6 @@ void applyItem(int type){
         }
         Point tail=snake.back();
         snake.pop_back();
-        map[tail.y][tail.x]=0;
+        gameMap[currentStage][tail.y][tail.x]=0;
     }
 }

@@ -2,6 +2,9 @@
 #include "map.hpp" // 맵 출력 함수
 #include "snake.hpp" // 뱀 함수
 #include "item.hpp"
+#include "gate.hpp"
+
+int currentStage=0;
 
 int main(){
     initscr(); // ncurses 화면 초기화. 항상 맨 처음에 호출
@@ -20,9 +23,11 @@ int main(){
     init_pair(4, 8, 8);
     init_pair(5, COLOR_GREEN, COLOR_GREEN);
     init_pair(6, COLOR_RED, COLOR_RED);
+    init_pair(7, COLOR_MAGENTA, COLOR_MAGENTA);
 
     initSnake();
     initItems();
+    initGate();
 
     int tick=0;
     while (!gameOver){
@@ -50,17 +55,20 @@ int main(){
             if(dir==DOWN) newHead.y++;
             if(dir==LEFT) newHead.x--;
             if(dir==RIGHT) newHead.x++;
-            int headType=map[newHead.y][newHead.x];
+            int headType=gameMap[currentStage][newHead.y][newHead.x];
 
             moveSnake();
 
             if(headType==5 || headType==6){
                 applyItem(headType);
             }
+            if(headType==7){
+                teleportSnake(dir);
+            }
         }
         updateItems();
 
-        drawMap(); // 현재 맵 상태
+        drawMap(0); // 현재 맵 상태
         refresh(); // 화면에 반영
         napms(100); //0.1초 대기
 

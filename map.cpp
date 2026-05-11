@@ -11,7 +11,7 @@ const int STAGE_COUNT = 4;
 //4: 뱀 몸통
 
 // 3차원 배열 구조: maps[스테이지번호][세로][가로]
-int map[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
+int gameMap[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
     // Stage 1: 기본 테두리만 있는 맵
     {
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
@@ -35,7 +35,7 @@ int map[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2}
-    }
+    },
     // Stage 2: 중앙 십자형 벽 (통로 확보형)
     {
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
@@ -59,7 +59,7 @@ int map[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
         {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1},
         {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1},
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
-    }
+    },
     // Stage 3: 상하 2단 터널
     {
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
@@ -83,7 +83,7 @@ int map[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
         {1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1},
         {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
-    }
+    },
     // Stage 4: 모서리 장애물
     {
         {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
@@ -120,7 +120,7 @@ void drawMap(int level){
         for(int x=0; x<MAP_SIZE; x++){
 
             // 현재 스테이지의 해당 칸 정보 가져오기
-            int tile = maps[level][y][x];
+            int tile = gameMap[level][y][x];
             
             switch (tile){
                 case 2: // 부술 수 없는 벽
@@ -142,6 +142,21 @@ void drawMap(int level){
                     attron(COLOR_PAIR(4));
                     mvprintw(y, x*2, "  ");
                     attroff(COLOR_PAIR(4));
+                   break;
+                case 5: 
+                    attron(COLOR_PAIR(5));
+                    mvprintw(y, x*2, "  ");
+                    attroff(COLOR_PAIR(5));
+                   break;
+                case 6: 
+                    attron(COLOR_PAIR(6));
+                    mvprintw(y, x*2, "  ");
+                    attroff(COLOR_PAIR(6));
+                   break;
+                case 7: 
+                    attron(COLOR_PAIR(7));
+                    mvprintw(y, x*2, "  ");
+                    attroff(COLOR_PAIR(7));
                    break;
                 case 0: // 빈 공간
                     mvprintw(y, x*2, "  ");
