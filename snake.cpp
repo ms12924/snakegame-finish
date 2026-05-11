@@ -38,12 +38,14 @@ void moveSnake(){
     //꼬리 제거
     Point tail = snake.back();
     snake.pop_back();
+    // 꼬리가 7(게이트) 아니면 0(빈칸)으로 변경
     if(gameMap[currentStage][tail.y][tail.x]!=7){
     gameMap[currentStage][tail.y][tail.x]=0;
     }
 
     //새 머리 추가
     snake.push_front(newHead);
+    // 머리 7(게이트) 아니면 4(기존 몸통)로 변경
     if(gameMap[currentStage][head.y][head.x]!=7){
     gameMap[currentStage][head.y][head.x]=4; //기존 머리는 몸통으로
     }
