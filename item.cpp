@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 extern int currentStage;
+extern bool invincible;
+extern int invincibleTimer;
 
 Item items[MAX_ITEMS]; // 필드에 생성될 아이템 관리 배열
 
@@ -33,7 +35,18 @@ void spawnItem(){
             items[i].y=y;
             items[i].x=x;
             // 5: Growth Item(몸 길이 증가), 6: Poison Item(몸 길이 감소)
-            items[i].type=(rand()%2==0)?5:6;
+            int r = rand()%20;
+            int newType=(r<11)?5:(r<18)?6:8;
+
+            if(newType==8){
+                for(int j=0; j<MAX_ITEMS; j++){
+                    if(items[j].type==8 && items[j].timer >0){
+                        newType=(rand()%2==0) ? 5:6;
+                        break;
+                    }
+                }
+            }
+            items[i].type=newType;
             items[i].timer=ITEM_DURATION; // 아이템 유지 시간 설정
             gameMap[currentStage][y][x]=items[i].type; // 맵 데이터 업데이트
             break;
@@ -65,11 +78,15 @@ void applyItem(int type){
     }else if(type==6){ // Posion Item: 몸 길이 감소
         // 뱀의 길이가 3 이하일 때 독약을 먹으면 게임 오버
         if(snake.size()<=3){
-            gameOver=true;
+            if(!invincible){
+                gameOver=true;            }
             return;
         }
         Point tail=snake.back();
         snake.pop_back(); // 기존 꼬리 위치 비우기
         gameMap[currentStage][tail.y][tail.x]=0; // 뱀 마디 제
+    }else if(type==8){
+        invincible=true;
+        invincibleTimer=100;
     }
 }

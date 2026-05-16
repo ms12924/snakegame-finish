@@ -1,6 +1,9 @@
 #ifndef MAP_HPP
 #define MAP_HPP
 
+void initOriginalMap();
+void resetMap(int stage);
+
 // 전역 변수 공유를 위한 extern 선언
 // 다른 .cpp 파일에서도 이 변수를 사용할 수 있도록 해주는 것
 extern const int MAP_SIZE; // 맵의 가로세로 크기(21)

@@ -19,7 +19,7 @@ struct Item{
 
 // 시스템 설정 상수
 const int MAX_ITEMS=3;  // 화면에 동시에 존재할 수 있는 최대의 아이템 수 (동시에 3개까지만 아이템 출현)
-const int ITEM_DURATION=50; //아이템이 맵에 유지되는 시간 (아이템은 50틱(5초)동안 지속)
+const int ITEM_DURATION=100; //아이템이 맵에 유지되는 시간 (아이템은 50틱(5초)동안 지속)
 
 // 외부 파일에서도 접근 가능하도록 선언
 extern Item items[MAX_ITEMS]; 
