@@ -1,60 +1,110 @@
-#include "snake.hpp"
-#include "map.hpp"
-extern int currentStage;
+#include "snake.h"
 
-//뱀
-std::deque<Point> snake; //뱀의 좌표 저장
-Direction dir = RIGHT; // 현재 이동 방향 (오른쪽으로)
-bool gameOver = false; // 게임오버 false로 초기화
-bool invincible = false;
-int invincibleTimer = 0;
+Snake::Snake()
+    : dir(RIGHT), gameOver(false), invincible(false), stopped(false), invincibleTimer(0), hearts(3) {}
 
-//뱀을 맵 중간쯤에 머리 1칸, 몸통 2칸으로 초기화
-void initSnake(){
-    snake.clear();
-    dir=RIGHT;
-    snake.push_back({10, 3}); //머리
-    snake.push_back({10, 2}); //몸통
-    snake.push_back({10, 1}); //몸통
-    gameMap[currentStage][10][3]=3; // 3이 머리
-    gameMap[currentStage][10][2]=4; // 4가 몸통
-    gameMap[currentStage][10][1]=4;
+void Snake::init(Board& board, int stage) {
+    body.clear();
+    dir             = RIGHT;
+    gameOver        = false;
+    invincible      = false;
+    stopped         = false;
+    invincibleTimer = 0;
+    hearts          = 3;
+
+    body.push_back({10, 3});
+    body.push_back({10, 2});
+    body.push_back({10, 1});
+
+    board.setCell(stage, 10, 3, 3);
+    board.setCell(stage, 10, 2, 4);
+    board.setCell(stage, 10, 1, 4);
 }
 
-//뱀 이동
-void moveSnake(){
-    Point head = snake.front();
+void Snake::move(Board& board, int stage) {
+    if (stopped) return;
+    Point head    = body.front();
     Point newHead = head;
 
-    // 방향따라 새로운 머리 위치 계산
-    if(dir == UP) newHead.y--;
-    if(dir == DOWN) newHead.y++;
-    if(dir == LEFT) newHead.x--;
-    if(dir == RIGHT) newHead.x++;
+    if      (dir == UP)    newHead.y--;
+    else if (dir == DOWN)  newHead.y++;
+    else if (dir == LEFT)  newHead.x--;
+    else if (dir == RIGHT) newHead.x++;
 
-    //새 머리 좌표 확인
-    int cell = gameMap[currentStage][newHead.y][newHead.x];
-    if (cell==1 || cell==2 || cell==4){ //머리위치가 벽, 부술 수 없는 벽, 자기 몸이면 게임오버
-        if(invincible) return;
-        gameOver=true;
+    int cell = board.getCell(stage, newHead.y, newHead.x);
+    if (cell == 1 || cell == 2 || cell == 4) {
+        if (!invincible) {
+            if (hearts > 0) {
+                hearts--;
+                stopped = true;
+            } else {
+                gameOver = true;
+            }
+        }
         return;
     }
 
-    //꼬리 제거
-    Point tail = snake.back();
-    snake.pop_back();
-    // 꼬리가 7(게이트) 아니면 0(빈칸)으로 변경
-    if(gameMap[currentStage][tail.y][tail.x]!=7){
-    gameMap[currentStage][tail.y][tail.x]=0;
-    }
+    Point tail = body.back();
+    body.pop_back();
+    if (board.getCell(stage, tail.y, tail.x) != 7)
+        board.setCell(stage, tail.y, tail.x, 0);
 
-    //새 머리 추가
-    snake.push_front(newHead);
-    // 머리 7(게이트) 아니면 4(기존 몸통)로 변경
-    if(gameMap[currentStage][head.y][head.x]!=7){
-    gameMap[currentStage][head.y][head.x]=4; //기존 머리는 몸통으로
-    }
+    body.push_front(newHead);
+    if (board.getCell(stage, head.y, head.x) != 7)
+        board.setCell(stage, head.y, head.x, 4);
 
-    gameMap[currentStage][newHead.y][newHead.x]=3; //새머리
-
+    board.setCell(stage, newHead.y, newHead.x, 3);
 }
+
+void Snake::grow(Board& board, int stage) {
+    Point tail = body.back();
+    body.push_back(tail);
+    board.setCell(stage, tail.y, tail.x, 4);
+}
+
+void Snake::shrink(Board& board, int stage) {
+    Point tail = body.back();
+    body.pop_back();
+    board.setCell(stage, tail.y, tail.x, 0);
+}
+
+void Snake::teleport(Point exitPos, Direction exitDir, Board& board, int stage) {
+    dir = exitDir;
+
+    Point head = body.front();
+    Point tail = body.back();
+    body.pop_back();
+
+    if (board.getCell(stage, tail.y, tail.x) != 7)
+        board.setCell(stage, tail.y, tail.x, 0);
+    if (board.getCell(stage, head.y, head.x) != 7)
+        board.setCell(stage, head.y, head.x, 4);
+
+    body.push_front(exitPos);
+    board.setCell(stage, exitPos.y, exitPos.x, 3);
+}
+
+void Snake::setInvincible(int timer) {
+    invincible      = true;
+    invincibleTimer = timer;
+}
+
+void Snake::tickInvincible() {
+    if (!invincible) return;
+    if (--invincibleTimer <= 0)
+        invincible = false;
+}
+
+void Snake::setGameOver(bool val) { gameOver = val; }
+void Snake::setDir(Direction d)   { dir = d; stopped = false; }
+void Snake::loseHeart() { if (hearts > 0) hearts--; }
+void Snake::gainHeart() { if (hearts < 3) hearts++; }
+bool Snake::isStopped() const { return stopped; }
+
+Point     Snake::getHead()      const { return body.front(); }
+Point     Snake::getTail()      const { return body.back(); }
+int       Snake::size()         const { return static_cast<int>(body.size()); }
+bool      Snake::isGameOver()   const { return gameOver; }
+bool      Snake::isInvincible() const { return invincible; }
+Direction Snake::getDir()       const { return dir; }
+int       Snake::getHearts()    const { return hearts; }
