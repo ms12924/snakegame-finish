@@ -1,10 +1,19 @@
+/**
+ * @brief 게임판(Board) 클래스 구현부
+ * @details 1~5 스테이지 맵 데이터 초기화, 맵 상태 관리 및 ncurses 렌더링 담당
+ */
+
 #include "board.h"
 #include <ncurses.h>
 #include <cstring>
 
+/**
+ * @brief Board 클래스 생성자
+ * @details 3차원 배열 기반 스테이지별 초기 맵 정의 및 메모리 복사 (0: 빈 공간, 1: 일반 벽, 2: 모서리 벽)
+ */
 Board::Board() {
     int init[STAGE_COUNT][MAP_SIZE][MAP_SIZE] = {
-        // Stage 1: 기본 테두리
+        // Stage 1: 기본 테두리 맵
         {
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -37,7 +46,7 @@ Board::Board() {
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
         },
-        // Stage 2: 상하 2단 터널
+        // Stage 2: 상하 2단 터널 맵
         {
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -70,7 +79,7 @@ Board::Board() {
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
         },
-        // Stage 3: 모서리 장애물
+        // Stage 3: 모서리 장애물 맵
         {
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -103,7 +112,7 @@ Board::Board() {
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
         },
-        // Stage 4: 중앙 세로벽
+        // Stage 4: 중앙 세로벽 맵
         {
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
@@ -136,7 +145,7 @@ Board::Board() {
             {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
             {2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2},
         },
-        // Stage 5: 이중 지그재그 벽
+        // Stage 5: 이중 지그재그 벽 맵
         {
             {2,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,2},
             {1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1},
@@ -171,77 +180,107 @@ Board::Board() {
         }
     };
 
+    // 실시간 게임용 맵 및 원본 복사본 배열 데이터 초기화
     memcpy(map, init, sizeof(map));
     memcpy(originalMap, init, sizeof(originalMap));
 }
 
+/**
+ * @brief 실시간 맵 상태 복구
+ * @param stage 대상 스테이지 번호
+ */
 void Board::reset(int stage) {
-    for (int y = 0; y < MAP_SIZE; y++)
-        for (int x = 0; x < MAP_SIZE; x++)
+    for (int y = 0; y < MAP_SIZE; y++) {
+        for (int x = 0; x < MAP_SIZE; x++) {
             map[stage][y][x] = originalMap[stage][y][x];
+        }
+    }
 }
 
+/**
+ * @brief 특정 좌표의 타일 값 반환 (Getter)
+ * @note [지침] 상수 함수 명시 (const)
+ * @param stage 대상 스테이지 번호
+ * @param y Y축 좌표
+ * @param x X축 좌표
+ * @return int 타일 종류 (0~9)
+ */
 int Board::getCell(int stage, int y, int x) const {
     return map[stage][y][x];
 }
 
+/**
+ * @brief 특정 좌표의 타일 값 변경 (Setter)
+ * @param stage 대상 스테이지 번호
+ * @param y Y축 좌표
+ * @param x X축 좌표
+ * @param val 수정할 타일 종류 값
+ */
 void Board::setCell(int stage, int y, int x, int val) {
     map[stage][y][x] = val;
 }
 
+/**
+ * @brief 터널 맵 및 게임 객체 화면 출력
+ * @note [지침] 상수 함수 명시 (const)
+ * @param stage 현재 스테이지 번호
+ * @param invincible 뱀 무적 상태 플래그
+ */
 void Board::draw(int stage, bool invincible) const {
     for (int y = 0; y < MAP_SIZE; y++) {
         for (int x = 0; x < MAP_SIZE; x++) {
             int tile = map[stage][y][x];
+            
+            // ncurses 종횡비(1:2) 보정을 위해 x축 좌표 2배 처리 출력
             switch (tile) {
-                case 2:
+                case 2: // 모서리 벽 (Immune Wall)
                     attron(COLOR_PAIR(2));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(2));
                     break;
-                case 1:
+                case 1: // 일반 벽 (Wall)
                     attron(COLOR_PAIR(1));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(1));
                     break;
-                case 3: {
-                    int pair = invincible ? 8 : 3;
+                case 3: { // 뱀 머리 (Snake Head)
+                    int pair = invincible ? 8 : 3; // 무적 여부에 따른 색상 스위칭
                     attron(COLOR_PAIR(pair));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(pair));
                     break;
                 }
-                case 4:
+                case 4: // 뱀 몸통 (Snake Body)
                     attron(COLOR_PAIR(4));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(4));
                     break;
-                case 5:
+                case 5: // 성장 아이템 (Growth Item)
                     attron(COLOR_PAIR(5));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(5));
                     break;
-                case 6:
+                case 6: // 독극물 아이템 (Poison Item)
                     attron(COLOR_PAIR(6));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(6));
                     break;
-                case 7:
+                case 7: // 게이트 (Gate)
                     attron(COLOR_PAIR(7));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(7));
                     break;
-                case 8:
+                case 8: // 특수 타일 효과 1
                     attron(COLOR_PAIR(8));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(8));
                     break;
-                case 9:
+                case 9: // 특수 타일 효과 2
                     attron(COLOR_PAIR(9));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(9));
                     break;
-                case 0:
+                case 0: // 빈 공간 (Empty)
                     mvprintw(y, x * 2, "  ");
                     break;
             }
