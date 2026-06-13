@@ -10,7 +10,6 @@ void Snake::init(Board& board, int stage) {
     invincible      = false;
     stopped         = false;
     invincibleTimer = 0;
-    hearts          = 3;
 
     body.push_back({10, 3});
     body.push_back({10, 2});

@@ -161,6 +161,7 @@ int main() {
         }
 #endif
 #if MILESTONE >= 4
+        gate.update(board, currentStage);
         gate.updateSpecial(board, currentStage, snake, currentStage == Board::STAGE_COUNT - 1);
 #endif
 

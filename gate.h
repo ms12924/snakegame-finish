@@ -9,6 +9,7 @@ public:
     Gate();
     void init(Board& board, int stage);
     void spawn(Board& board, int stage);
+    void update(Board& board, int stage);
     void teleport(Snake& snake, Board& board, int stage);
 
     void updateSpecial(Board& board, int stage, const Snake& snake, bool isLastStage);
@@ -22,6 +23,9 @@ private:
     bool specialTriggered;
     int  specialY, specialX;
     int  specialTimer;
+
+    bool spawned;
+    int  spawnTimer;
 
     Direction getExitDir(int gateIdx, Direction enterDir,
                          const Board& board, int stage) const;

@@ -6,13 +6,24 @@ Gate::Gate() {
     gates[1].active = false;
     specialActive    = false;
     specialTriggered = false;
+    spawned          = false;
+    spawnTimer       = 0;
 }
 
 void Gate::init(Board& board, int stage) {
     gates[0].active = false;
     gates[1].active = false;
     specialActive    = false;
-    spawn(board, stage);
+    spawned          = false;
+    spawnTimer       = 200; // 20초 (루프당 약 100ms)
+}
+
+void Gate::update(Board& board, int stage) {
+    if (spawned) return;
+    if (--spawnTimer <= 0) {
+        spawn(board, stage);
+        spawned = true;
+    }
 }
 
 void Gate::spawn(Board& board, int stage) {
