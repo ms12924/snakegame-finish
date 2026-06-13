@@ -1,7 +1,7 @@
 #include "snake.h"
 
 Snake::Snake()
-    : dir(RIGHT), gameOver(false), invincible(false), stopped(false), invincibleTimer(0), hearts(3), pendingGrowth(0) {}
+    : dir(RIGHT), gameOver(false), invincible(false), stopped(false), invincibleTimer(0), hearts(3) {}
 
 void Snake::init(Board& board, int stage) {
     body.clear();
@@ -10,7 +10,6 @@ void Snake::init(Board& board, int stage) {
     invincible      = false;
     stopped         = false;
     invincibleTimer = 0;
-    pendingGrowth   = 0;
 
     body.push_back({10, 3});
     body.push_back({10, 2});
@@ -44,14 +43,10 @@ void Snake::move(Board& board, int stage) {
         return;
     }
 
-    if (pendingGrowth > 0) {
-        pendingGrowth--;
-    } else {
-        Point tail = body.back();
-        body.pop_back();
-        if (board.getCell(stage, tail.y, tail.x) != 7)
-            board.setCell(stage, tail.y, tail.x, 0);
-    }
+    Point tail = body.back();
+    body.pop_back();
+    if (board.getCell(stage, tail.y, tail.x) != 7)
+        board.setCell(stage, tail.y, tail.x, 0);
 
     body.push_front(newHead);
     if (board.getCell(stage, head.y, head.x) != 7)
@@ -61,9 +56,9 @@ void Snake::move(Board& board, int stage) {
 }
 
 void Snake::grow(Board& board, int stage) {
-    (void)board;
-    (void)stage;
-    pendingGrowth++;
+    Point tail = body.back();
+    body.push_back(tail);
+    board.setCell(stage, tail.y, tail.x, 4);
 }
 
 void Snake::shrink(Board& board, int stage) {
