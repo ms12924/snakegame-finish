@@ -1,22 +1,16 @@
-/**
- * @brief 뱀(Snake) 클래스 구현부
- * @details 뱀의 초기화, 이동(move), 성장/축소, 게이트 순간이동 및 무적/생명 상태 관리
- */
+// ==========================================================================================================
+// 파일명: snake.cpp
+// 역할: 뱀(Snake) 클래스 구현부
+// 설명: 뱀의 초기화, 방향 이동 제어, 아이템 획득 시 크기 변동, 게이트 통과 처리 및 목숨/무적 상태 시스템을 구현한다.
+// ==========================================================================================================
 
 #include "snake.h"
 
-/**
- * @brief Snake 클래스 생성자
- * @details 초기 방향, 게임오버 상태, 무적 타이머, 초기 목숨(3개) 초기화
- */
+// 생성자: 방향, 게임오버 상태, 무적 플래그, 초기 목숨(3개) 초기 설정
 Snake::Snake()
     : dir(RIGHT), gameOver(false), invincible(false), stopped(false), invincibleTimer(0), hearts(3) {}
 
-/**
- * @brief 스테이지 시작 시 뱀 상태 및 위치 초기화
- * @param board Board 클래스 참조 변수
- * @param stage 현재 진행할 스테이지 번호
- */
+// 스테이지 시작 시 뱀 상태 및 초기 3칸 위치 세팅
 void Snake::init(Board& board, int stage) {
     body.clear();
     dir             = RIGHT;
@@ -25,54 +19,52 @@ void Snake::init(Board& board, int stage) {
     stopped         = false;
     invincibleTimer = 0;
 
-    // 뱀 초기 3칸 위치 설정 (X축 기준 3->2->1 순서로 머리->몸통 배치)
+    // 뱀 초기 위치 좌표 지정 (머리를 앞으로 하여 3칸 일렬 배치)
     body.push_back({10, 3});
     body.push_back({10, 2});
     body.push_back({10, 1});
 
-    // Board 객체 맵 내 타일 값 동기화 (3: 머리, 4: 몸통)
+    // 게임판 배열 내 실제 타일 값 동기화 (3: 머리, 4: 몸통)
     board.setCell(stage, 10, 3, 3);
     board.setCell(stage, 10, 2, 4);
     board.setCell(stage, 10, 1, 4);
 }
 
-/**
- * @brief 입력 방향 기반 뱀 이동 및 충돌 처리
- * @param board Board 클래스 참조 변수
- * @param stage 현재 스테이지 번호
- */
+// ----------------------------------------------------------------------------
+// move: 매 틱마다 방향에 따라 새 좌표를 계산하고 충돌 검사 및 타일 이동을 처리
+// ----------------------------------------------------------------------------
 void Snake::move(Board& board, int stage) {
     if (stopped) return;
     Point head    = body.front();
     Point newHead = head;
 
-    // 현재 방향 기준 다음 이동 좌표 계산
+    // 현재 설정된 방향 기준으로 다음 칸의 좌표 계산
     if      (dir == UP)    newHead.y--;
     else if (dir == DOWN)  newHead.y++;
     else if (dir == LEFT)  newHead.x--;
     else if (dir == RIGHT) newHead.x++;
 
-    // 충돌 타일 체크 (1: 일반 벽, 2: 모서리 벽, 4: 자신의 몸통)
+    // 벽이나 자기 자신에게 충돌했는지 판단 (1: 일반 벽, 2: 모서리 벽, 4: 몸통)
     int cell = board.getCell(stage, newHead.y, newHead.x);
     if (cell == 1 || cell == 2 || cell == 4) {
         if (!invincible) {
-            hearts--; // [독창적 규칙 가산점] 생명 감소 처리
+            hearts--; // 충돌 시 목숨 감소
             if (hearts <= 0) {
-                gameOver = true; // 생명 모두 소진 시 게임오버
+                gameOver = true; // 모두 소진 시 게임 종료
             } else {
-                stopped = true;  // 생명 남았을 경우 일시 정지 후 대기
+                stopped = true;  // 목숨 남았을 경우 잠시 정지 후 복귀 대기
             }
         }
         return;
     }
 
-    // 정상 이동 처리: 기존 꼬리 타일 제거 (게이트 타일 제외)
+    // 정상 이동 로직: 한 칸 전진하므로 기존 마지막 꼬리 타일 삭제 (게이트는 보존)
     Point tail = body.back();
     body.pop_back();
     if (board.getCell(stage, tail.y, tail.x) != 7)
         board.setCell(stage, tail.y, tail.x, 0);
 
-    // 새 머리 배치 및 기존 머리 타일을 몸통으로 전환
+    // 새 머리 포인트를 push하고 기존 머리가 있던 자리는 몸통 타일(4)로 변경
     body.push_front(newHead);
     if (board.getCell(stage, head.y, head.x) != 7)
         board.setCell(stage, head.y, head.x, 4);
@@ -80,26 +72,24 @@ void Snake::move(Board& board, int stage) {
     board.setCell(stage, newHead.y, newHead.x, 3);
 }
 
-// @brief 성장 아이템 획득 시 뱀 길이 증가
+// 성장 아이템 획득 시 현재 꼬리 자리에 한 칸 복사 확장
 void Snake::grow(Board& board, int stage) {
     Point tail = body.back();
-    body.push_back(tail); // 꼬리 위치에 몸통 한 칸 복사 확장
+    body.push_back(tail); 
     board.setCell(stage, tail.y, tail.x, 4);
 }
 
-// @brief 독 아이템 획득 시 뱀 길이 축소
+// 독 아이템 획득 시 마지막 꼬리 칸 삭제 및 게임판 동기화
 void Snake::shrink(Board& board, int stage) {
     Point tail = body.back();
-    body.pop_back(); // 마지막 꼬리 칸 삭제
+    body.pop_back(); 
     if (board.getCell(stage, tail.y, tail.x) != 7)
         board.setCell(stage, tail.y, tail.x, 0);
 }
 
-/**
- * @brief 게이트 진입 시 출구 위치로 뱀 좌표 순간이동
- * @param exitPos 출구 좌표
- * @param exitDir 출구 진출 방향
- */
+// ----------------------------------------------------------------------------
+// teleport: 게이트 통과 시 진입 꼬리/머리 잔상을 지우고 출구 좌표로 이동 처리
+// ----------------------------------------------------------------------------
 void Snake::teleport(Point exitPos, Direction exitDir, Board& board, int stage) {
     dir = exitDir;
 
@@ -107,39 +97,37 @@ void Snake::teleport(Point exitPos, Direction exitDir, Board& board, int stage) 
     Point tail = body.back();
     body.pop_back();
 
-    // 기존 꼬리 및 머리 타일 맵 업데이트
+    // 진입 전 맵에 남아있던 스네이크 타일 클리어
     if (board.getCell(stage, tail.y, tail.x) != 7)
         board.setCell(stage, tail.y, tail.x, 0);
     if (board.getCell(stage, head.y, head.x) != 7)
         board.setCell(stage, head.y, head.x, 4);
 
-    // 출구 위치에 새 머리 배치
+    // 설정된 출구 좌표 위치에 새 머리 타일 배치
     body.push_front(exitPos);
     board.setCell(stage, exitPos.y, exitPos.x, 3);
 }
 
-/**
- * @brief 무적 상태 활성화 및 타이머 세팅
- * @param timer 무적 지속 시간 프레임 수
- */
+// 아이템 효과로 인한 무적 지속 시간 설정
 void Snake::setInvincible(int timer) {
     invincible      = true;
     invincibleTimer = timer;
 }
 
-// @brief 무적 시간 프레임 차감 및 타이머 만료 체크
+// 무적 활성화 상태일 때 타이머 프레임 차감 관리
 void Snake::tickInvincible() {
     if (!invincible) return;
     if (--invincibleTimer <= 0)
         invincible = false;
 }
 
-// 상태 설정 및 제어 함수 인터페이스 구현부
+// 데이터 변경 및 상태 갱신 함수
 void Snake::setGameOver(bool val) { gameOver = val; }
 void Snake::setDir(Direction d)   { dir = d; stopped = false; }
 void Snake::loseHeart() { if (hearts > 0) hearts--; }
 void Snake::gainHeart() { if (hearts < 3) hearts++; }
 
+// 간단한 상태 조회 및 데이터 반환용 헬퍼 함수
 bool Snake::isStopped() const { return stopped; }
 Point      Snake::getHead()       const { return body.front(); }
 Point      Snake::getTail()       const { return body.back(); }
