@@ -49,7 +49,7 @@ public:
 private:
     Score     score;
     HighScore highScore;
-    static const Mission missions[5];
+    static const Mission missions[5]; // 스테이지별 미션 데이터
 };
 
 #endif
