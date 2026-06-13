@@ -3,11 +3,11 @@
 #include <ncurses.h>
 
 const Contents::Mission Contents::missions[5] = {
-    {5, 3, 2, 1},
-    {7, 5, 3, 2},
-    {10, 7, 4, 3},
-    {13, 9, 5, 4},
-    {16, 11, 6, 5}
+    {5, 3, 1, 1},
+    {7, 5, 2, 2},
+    {9, 7, 3, 3},
+    {11, 9, 4, 4},
+    {13, 11, 5, 5}
 };
 
 Contents::Contents() {
