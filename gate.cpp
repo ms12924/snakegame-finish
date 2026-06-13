@@ -37,7 +37,7 @@ void Gate::update(Board& board, int stage) {
 }
 /*
 코드 블럭 로직:
-맵의 일반 벽(1) 중 랜덤한 두 위치를 선택하여 게이트를 생성한다.
+맵의 일반 벽(=1) 중 랜덤한 두 위치를 선택하여 게이트를 생성한다.
 기존 게이트가 존재하면 원래 벽 상태로 복구한 뒤 새 위치를 선정한다.
 */
 void Gate::spawn(Board& board, int stage) {
@@ -81,7 +81,7 @@ Direction Gate::getExitDir(int gateIdx, Direction enterDir,
     if (x == 0)                    return RIGHT;
     if (x == Board::MAP_SIZE - 1)  return LEFT;
     /* 방향 열거형 값이 순차적인 회전 구조가 아니므로 별도 테이블 사용
-        즉, UP=0,DOWN=1,LEFT=2,RIGHT=3 순서라 +N으로 시계방향 계산 불가 → 테이블 사용 */
+        즉, UP=0,DOWN=1,LEFT=2,RIGHT=3 순서라 +N으로 시계방향 계산 불가하단뜻 */
     const Direction cw[]  = {RIGHT, LEFT, UP,   DOWN}; // 시계방향
     const Direction ccw[] = {LEFT,  RIGHT, DOWN, UP  }; // 반시계방향
 
