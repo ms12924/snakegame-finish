@@ -42,7 +42,7 @@ public:
     void draw(int stage, int hearts) const; // 스코어보드, 미션, 생명 화면 출력
     bool checkMission(int stage) const; // 미션 달성 여부 확인
 
-    // 최고기록 불러오고 저장
+    // 최고기록 불러오기, 저장
     void loadHighScore();
     void saveHighScore(int stage) const;
 
