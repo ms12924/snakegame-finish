@@ -1,7 +1,10 @@
+// 스테이지별 미션 정의, 점수 갱신/출력, 최고기록 출력
+
 #include "contents.h"
 #include "board.h"
 #include <ncurses.h>
 
+// 스테이지별 미션 목록(길이, 성장 아이템, 독 아이템, 게이트)
 const Contents::Mission Contents::missions[5] = {
     {5, 3, 1, 1},
     {7, 5, 2, 2},
@@ -10,11 +13,13 @@ const Contents::Mission Contents::missions[5] = {
     {13, 11, 5, 5}
 };
 
+// 점수, 최고기록 초기화
 Contents::Contents() {
     score     = {0, 0, 0, 0, 0, 0};
     highScore = {0, 0};
 }
 
+// 스테이지 시작 시 뱀길이 초기화, 미션 달성 수 초기화
 void Contents::init(const Snake& snake) {
     score.currentLength = snake.size();
     if (snake.size() > score.maxLength)
@@ -25,6 +30,7 @@ void Contents::init(const Snake& snake) {
     score.elapsedTime   = 0;
 }
 
+// 매 틱마다 현재 길이, 최대 길이 갱신
 void Contents::updateScore(const Snake& snake) {
     score.currentLength = snake.size();
     if (score.currentLength > score.maxLength)
@@ -36,6 +42,7 @@ void Contents::addPoison() { score.poisonItems++; }
 void Contents::addGate()   { score.gateCount++; }
 void Contents::tickTime()  { score.elapsedTime++; }
 
+// 화면에 스코어보드, 하트, 최고기록, 미션 출력
 void Contents::draw(int stage, int hearts) const {
     const int col = Board::MAP_SIZE * 2 + 2;
     for (int i = 1; i <= 15; i++)
@@ -43,7 +50,7 @@ void Contents::draw(int stage, int hearts) const {
 
     char heartBar[8] = {};
     for (int i = 0; i < 3; i++)
-        heartBar[i] = (i < hearts) ? '*' : '-';
+        heartBar[i] = (i < hearts) ? '*' : '-'; // 남은 하트 개수: *
     heartBar[3] = '\0';
 
     mvprintw(1,  col, "Score Board  H:%s", heartBar);
@@ -69,6 +76,7 @@ void Contents::draw(int stage, int hearts) const {
         score.gateCount >= missions[stage].targetGate ? "v" : " ");
 }
 
+// highscore.txt에서 최고기록 불러오기
 void Contents::loadHighScore() {
     std::ifstream f("highscore.txt");
     if (f.is_open())
@@ -77,6 +85,7 @@ void Contents::loadHighScore() {
         highScore = {0, 0};
 }
 
+// 최고기록 갱신 시 highscore.txt에 반영 
 void Contents::saveHighScore(int stage) const {
     bool better = (stage > highScore.stage) ||
                   (stage == highScore.stage && score.maxLength > highScore.maxLength);
@@ -86,6 +95,7 @@ void Contents::saveHighScore(int stage) const {
     }
 }
 
+// 미션 달성 여부 확인
 bool Contents::checkMission(int stage) const {
     return score.currentLength >= missions[stage].targetLength &&
            score.growthItems   >= missions[stage].targetGrowth &&
