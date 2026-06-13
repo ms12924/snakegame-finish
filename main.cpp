@@ -93,10 +93,11 @@ int main() {
         if (key == KEY_LEFT  && dir != RIGHT) snake.setDir(LEFT);
         if (key == KEY_RIGHT && dir != LEFT)  snake.setDir(RIGHT);
 
-        if ((key == KEY_UP    && dir == DOWN)  ||
-            (key == KEY_DOWN  && dir == UP)    ||
-            (key == KEY_LEFT  && dir == RIGHT) ||
-            (key == KEY_RIGHT && dir == LEFT)) {
+        if (!snake.isInvincible() &&
+            ((key == KEY_UP    && dir == DOWN)  ||
+             (key == KEY_DOWN  && dir == UP)    ||
+             (key == KEY_LEFT  && dir == RIGHT) ||
+             (key == KEY_RIGHT && dir == LEFT))) {
             snake.loseHeart();
             if (snake.getHearts() == 0) {
                 snake.setGameOver(true);
