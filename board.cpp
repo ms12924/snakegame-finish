@@ -260,7 +260,7 @@ void Board::draw(int stage, bool invincible) const {
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(5));
                     break;
-                case 6: // 독극물 아이템 (Poison Item)
+                case 6: // 독 아이템 (Poison Item)
                     attron(COLOR_PAIR(6));
                     mvprintw(y, x * 2, "  ");
                     attroff(COLOR_PAIR(6));
