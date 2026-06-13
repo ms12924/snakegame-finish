@@ -1,12 +1,15 @@
-/*
-게임 내 게이트(순간이동 포탈)와 특수 게이트를 관리한다.
-일정 시간이 지나면 벽 위치에 게이트를 생성하며,
-스네이크가 게이트에 진입하면 반대편 게이트로 이동시킨다.
-또한 체력이 1개 남았을 때 등장하는 특수 게이트의 생성 및 제거를 담당한다.
-*/
+// ========================================
+// 파일명 : gate.cpp
+// 역할 : Gate 클래스 구현부
+// 설명 : 일반 게이트와 특수 게이트 생성 및 상태 관리,
+//      스네이크의 순간 이동과 게이트 출구 방향 계산,
+//      특수 게이트 제거를 담당.
+// ========================================
+
 #include "gate.h"
 #include <cstdlib>
 
+// 게이트 및 특수 게이트 상태 초기화
 Gate::Gate() {
     gates[0].active = false;
     gates[1].active = false;
@@ -16,20 +19,21 @@ Gate::Gate() {
     spawnTimer       = 0;
 }
 
+// 스테이지 시작 시 게이트 상태, 생성 타이머 초기화
 void Gate::init(Board& board, int stage) {
     gates[0].active = false;
     gates[1].active = false;
     specialActive    = false;
     spawned          = false;
-    // 게이트 생성까지의 대기 시간 초기화
+
+    // 게이트 생성까지 대기 시간 설정
     spawnTimer       = 200; // 20초 (루프당 약 100ms)
 }
 
+// 생성 타이머 종료되면 게이트 생성
 void Gate::update(Board& board, int stage) {
-    // 이미 생성된 경우 추가 생성 방지
     if (spawned) return;
-
-    // 타이머 종료 시 게이트 생성
+    
     if (--spawnTimer <= 0) {
         spawn(board, stage);
         spawned = true;
@@ -45,6 +49,7 @@ void Gate::spawn(Board& board, int stage) {
     if (gates[1].active) board.setCell(stage, gates[1].y, gates[1].x, 1);
 
     int y, x;
+    
     // 첫 번째 게이트 생성
     do {
         y = rand() % Board::MAP_SIZE;
@@ -75,11 +80,13 @@ Direction Gate::getExitDir(int gateIdx, Direction enterDir,
                             const Board& board, int stage) const {
     int y = gates[gateIdx].y;
     int x = gates[gateIdx].x;
+    
     // 외곽 게이트는 무조건 맵 안쪽 방향으로 이동
     if (y == 0)                    return DOWN;
     if (y == Board::MAP_SIZE - 1)  return UP;
     if (x == 0)                    return RIGHT;
     if (x == Board::MAP_SIZE - 1)  return LEFT;
+    
     /* 방향 열거형 값이 순차적인 회전 구조가 아니므로 별도 테이블 사용
         즉, UP=0,DOWN=1,LEFT=2,RIGHT=3 순서라 +N으로 시계방향 계산 불가하단뜻 */
     const Direction cw[]  = {RIGHT, LEFT, UP,   DOWN}; // 시계방향
@@ -91,6 +98,7 @@ Direction Gate::getExitDir(int gateIdx, Direction enterDir,
         ccw[enterDir],
         static_cast<Direction>(enterDir ^ 1)  // 반대방향 (UP↔DOWN, LEFT↔RIGHT)
     };
+    
     // 우선순위 순서대로 이동 가능한 방향 탐색
     for (Direction d : priority) {
         int ny = y, nx = x;
@@ -102,6 +110,7 @@ Direction Gate::getExitDir(int gateIdx, Direction enterDir,
     }
     return enterDir;
 }
+
 /*
 코드 블럭 로직:
 스네이크가 게이트에 진입했을 때 수행되는 순간이동 처리.
@@ -125,10 +134,12 @@ void Gate::teleport(Snake& snake, Board& board, int stage) {
     if (exitDir == RIGHT) exitPos.x++;
     
     snake.teleport(exitPos, exitDir, board, stage);
+    
     // 스네이크 이동 과정에서 덮어쓰인 게이트 표시 복원
     board.setCell(stage, gates[0].y, gates[0].x, 7);
     board.setCell(stage, gates[1].y, gates[1].x, 7);
 }
+
 /*
 코드 블럭 로직:
 특수 게이트 생성 및 유지 관리.
@@ -146,14 +157,15 @@ void Gate::updateSpecial(Board& board, int stage, const Snake& snake, bool isLas
     }
 
     if (isLastStage || specialTriggered) return;
-    if (snake.getHearts() != 1) return;
-    // 파란 사과가 존재하면 특수 게이트 생성 보류
+    if (snake.getHearts() != 1) return; 
+    
+    // 무적 아이템 존재하면 특수 게이트 생성 보류
     for (int y = 0; y < Board::MAP_SIZE; y++)
         for (int x = 0; x < Board::MAP_SIZE; x++)
             if (board.getCell(stage, y, x) == 8) return; // 파란사과가 필드에 있으면 보류
 
     int y, x;
-    // 벽 위치를 선택하여 특수 게이트 생성
+    // 벽 위치를 선택해 특수 게이트 생성
     do {
         y = rand() % Board::MAP_SIZE;
         x = rand() % Board::MAP_SIZE;
