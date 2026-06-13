@@ -39,6 +39,7 @@ private:
     bool stopped;
     int  invincibleTimer;
     int  hearts;
+    int  pendingGrowth;
 };
 
 #endif
