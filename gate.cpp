@@ -4,11 +4,14 @@
 Gate::Gate() {
     gates[0].active = false;
     gates[1].active = false;
+    specialActive    = false;
+    specialTriggered = false;
 }
 
 void Gate::init(Board& board, int stage) {
     gates[0].active = false;
     gates[1].active = false;
+    specialActive    = false;
     spawn(board, stage);
 }
 
@@ -81,4 +84,38 @@ void Gate::teleport(Snake& snake, Board& board, int stage) {
 
     board.setCell(stage, gates[0].y, gates[0].x, 7);
     board.setCell(stage, gates[1].y, gates[1].x, 7);
+}
+
+void Gate::updateSpecial(Board& board, int stage, const Snake& snake, bool isLastStage) {
+    if (specialActive) {
+        if (--specialTimer <= 0) {
+            board.setCell(stage, specialY, specialX, 1);
+            specialActive = false;
+        }
+        return;
+    }
+
+    if (isLastStage || specialTriggered) return;
+    if (snake.getHearts() != 1) return;
+
+    for (int y = 0; y < Board::MAP_SIZE; y++)
+        for (int x = 0; x < Board::MAP_SIZE; x++)
+            if (board.getCell(stage, y, x) == 8) return; // 파란사과가 필드에 있으면 보류
+
+    int y, x;
+    do {
+        y = rand() % Board::MAP_SIZE;
+        x = rand() % Board::MAP_SIZE;
+    } while (board.getCell(stage, y, x) != 1);
+
+    specialY = y;
+    specialX = x;
+    board.setCell(stage, y, x, 9);
+    specialActive    = true;
+    specialTriggered = true;
+    specialTimer     = 100; // 10초 (루프당 약 100ms)
+}
+
+void Gate::deactivateSpecial() {
+    specialActive = false;
 }

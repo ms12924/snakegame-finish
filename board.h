@@ -3,8 +3,8 @@
 
 class Board {
 public:
-    static const int MAP_SIZE = 21;
-    static const int STAGE_COUNT = 4;
+    static const int MAP_SIZE = 30;
+    static const int STAGE_COUNT = 5;
 
     Board();
     void reset(int stage);

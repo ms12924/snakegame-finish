@@ -28,6 +28,9 @@ int main() {
     Contents contents;
     bool     youwin = false;
 #endif
+#if MILESTONE >= 4
+    bool specialGateEntered = false;
+#endif
 
     int currentStage = 0;
 
@@ -55,6 +58,7 @@ int main() {
     init_pair(6, COLOR_RED,     COLOR_RED);
     init_pair(7, COLOR_MAGENTA, COLOR_MAGENTA);
     init_pair(8, COLOR_BLUE,    COLOR_BLUE);
+    init_pair(9, COLOR_CYAN,    COLOR_CYAN);
 
 #if MILESTONE >= 2
     snake.init(board, currentStage);
@@ -108,7 +112,7 @@ int main() {
 #endif
 
 #if MILESTONE >= 2
-        if (tick % 3 == 0) {
+        if (tick % 2 == 0) {
             Point     head    = snake.getHead();
             Direction curDir  = snake.getDir();
             Point     newHead = head;
@@ -148,8 +152,15 @@ int main() {
                 contents.addGate();
 #endif
             }
+            if (headType == 9) {
+                gate.deactivateSpecial();
+                specialGateEntered = true;
+            }
 #endif
         }
+#endif
+#if MILESTONE >= 4
+        gate.updateSpecial(board, currentStage, snake, currentStage == Board::STAGE_COUNT - 1);
 #endif
 
 #if MILESTONE >= 3
@@ -158,7 +169,8 @@ int main() {
 #if MILESTONE >= 5
         contents.updateScore(snake);
 
-        if (contents.checkMission(currentStage)) {
+        if (contents.checkMission(currentStage) || specialGateEntered) {
+            specialGateEntered = false;
             currentStage++;
             if (currentStage >= Board::STAGE_COUNT) {
                 youwin = true;

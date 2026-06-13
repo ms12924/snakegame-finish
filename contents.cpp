@@ -2,11 +2,12 @@
 #include "board.h"
 #include <ncurses.h>
 
-const Contents::Mission Contents::missions[4] = {
+const Contents::Mission Contents::missions[5] = {
     {5, 3, 2, 1},
     {7, 5, 3, 2},
     {10, 7, 4, 3},
-    {13, 9, 5, 4}
+    {13, 9, 5, 4},
+    {16, 11, 6, 5}
 };
 
 Contents::Contents() {

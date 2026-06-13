@@ -34,11 +34,11 @@ void Snake::move(Board& board, int stage) {
     int cell = board.getCell(stage, newHead.y, newHead.x);
     if (cell == 1 || cell == 2 || cell == 4) {
         if (!invincible) {
-            if (hearts > 0) {
-                hearts--;
-                stopped = true;
-            } else {
+            hearts--;
+            if (hearts <= 0) {
                 gameOver = true;
+            } else {
+                stopped = true;
             }
         }
         return;
@@ -65,7 +65,8 @@ void Snake::grow(Board& board, int stage) {
 void Snake::shrink(Board& board, int stage) {
     Point tail = body.back();
     body.pop_back();
-    board.setCell(stage, tail.y, tail.x, 0);
+    if (board.getCell(stage, tail.y, tail.x) != 7)
+        board.setCell(stage, tail.y, tail.x, 0);
 }
 
 void Snake::teleport(Point exitPos, Direction exitDir, Board& board, int stage) {

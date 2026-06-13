@@ -42,7 +42,7 @@ public:
 private:
     Score     score;
     HighScore highScore;
-    static const Mission missions[4];
+    static const Mission missions[5];
 };
 
 #endif
