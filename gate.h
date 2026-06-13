@@ -1,22 +1,29 @@
-/*
-게임 내 게이트(순간이동 포탈)와 특수 게이트의 상태를 관리한다.
-게이트 생성, 순간이동 처리, 특수 게이트 생성 여부 및
-출구 방향 결정에 필요한 정보를 저장한다.
-*/
+// =======================================
+// 파일명 : gate.h
+// 역할 : Gate 클래스 선언부
+// 설명 : 일반 게이트와 특수 게이트 생성 및 상태 관리,
+//       뱀의 순간이동과 게이트 출구 방향 결정 담당
+// =======================================
+
 #ifndef GATE_H
 #define GATE_H
 
 #include "board.h"
 #include "snake.h"
 
+// 게이트 생성, 순간이동 및 특수 게이트 관리를 담당
 class Gate {
 public:
     Gate();
+
+    // 초기화 및 생성
     void init(Board& board, int stage);
     void spawn(Board& board, int stage);
+
+    // 상태 업데이트
     void update(Board& board, int stage);
 
-    // 스네이크 게이트 순간이동 처리
+    // 스네이크 게이트 진입시 순간이동 처리
     void teleport(Snake& snake, Board& board, int stage);
 
     // 특수 게이트 생성 및 유지 관리
