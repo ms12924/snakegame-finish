@@ -19,7 +19,7 @@ Contents::Contents() {
     highScore = {0, 0};
 }
 
-// 스테이지 시작 시 뱀길이 초기화, 미션 달성 수 초기화
+// 스테이지 시작 시 뱀길이 초기화, 최대 길이 갱신, 미션 달성 수 초기화
 void Contents::init(const Snake& snake) {
     score.currentLength = snake.size();
     if (snake.size() > score.maxLength)
