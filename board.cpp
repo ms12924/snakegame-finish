@@ -199,7 +199,6 @@ void Board::reset(int stage) {
 
 /**
  * @brief 특정 좌표의 타일 값 반환 (Getter)
- * @note [지침] 상수 함수 명시 (const)
  * @param stage 대상 스테이지 번호
  * @param y Y축 좌표
  * @param x X축 좌표
@@ -222,7 +221,6 @@ void Board::setCell(int stage, int y, int x, int val) {
 
 /**
  * @brief 터널 맵 및 게임 객체 화면 출력
- * @note [지침] 상수 함수 명시 (const)
  * @param stage 현재 스테이지 번호
  * @param invincible 뱀 무적 상태 플래그
  */
